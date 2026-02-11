@@ -3,6 +3,7 @@ Lists:
     mutable sequence of values
 
 """
+empty_list = []
 
 marks = [100, 99, 89, 88, 90]
 print(marks)
