@@ -86,3 +86,19 @@ sum = a + b
 print("The sum is {}".format(sum))  # The sum is 15
 print("The language is {}".format("Python"))  # The language is Python
 print("The sum of {} and {} is {}".format(a, b, sum))  # The sum of 5 and 10 is 15
+
+# index based formatting
+print("The sum of {1} & {0} is {2}".format(a,b,sum))
+
+# value based formatting
+print("values of vars {a} & {b}".format(a=100, b=200))
+print("values of vars {b} & {a}".format(a=100, b=200))
+
+# we can also reuse the values
+print("{a}values {a} of vars {b} & {a} {a} - {b}".format(a=100, b=200))
+
+
+# Formatting using F-Strings - we use 'Literal string interpolation in f strings means we can embed expressions in the string itself'
+print(f"The sum of {10} and {20} will be {10+20} and the subtraction will be {20-10}")
+
+
