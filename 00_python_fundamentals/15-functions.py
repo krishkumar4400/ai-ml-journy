@@ -23,4 +23,13 @@ input(parameters) -> login -> output(return)
 def sum(a,b): # parameters
     return a+b
 
+# function call
 print(sum(10,11)) # arguments
+
+
+'''
+Types of functions in python
+    1. built-in function - print, input, type, range, len, upper, lower
+    2. user defined function - sum, average etc
+'''
+
