@@ -69,7 +69,7 @@ print(sentence[-5::])
 print(sentence[-5:-1])
 
 
-'''
+"""
 String Formatting - creating dynamic string (dynamic string means string having text, values, variables, expressions)
 
 2 ways to create dynamic strings or formatting
@@ -77,11 +77,11 @@ String Formatting - creating dynamic string (dynamic string means string having 
     2. f-strings
 
 
-'''
+"""
 
-a=5
-b=10
-sum=a+b
+a = 5
+b = 10
+sum = a + b
 
 print("The sum is {}".format(sum))  # The sum is 15
 print("The language is {}".format("Python"))  # The language is Python
