@@ -69,3 +69,11 @@ with open("26-sample.txt", 'r') as f:
     print(type(data))
     print(len(data))
     print(data)
+    
+with open("26-sample.txt") as f:
+    data = f.readlines()
+    print(data)
+    print(type(data))
+    print(len(data))
+    
+# delete files
