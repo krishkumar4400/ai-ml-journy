@@ -94,14 +94,30 @@
 #             print(idx)
 #         idx+=1
 
+# # Practice Problem
+# with open("26-sample.txt", "r") as f:
+#     data = f.readlines()
+#     line=1
+#     for val in data:
+#         lst = val.split(" ")
+#         for word in lst:
+#             if(word == "Python"):
+#                 print(word)
+#                 print(line)
+#                 break
+#         line+=1
+
 # Practice Problem
-with open("26-sample.txt", "r") as f:
-    data = f.readlines()
-    line=0
-    for val in data:
-        lst = val.split(" ")
-        for word in lst:
-            if(word == "Python"):
-                print(word)
-                print(line)
+data = True
+line=1
+word = "store"
+with open('./26-sample.txt', "r") as f:
+    while data:
+        data = f.readline()
+        # print(data)
+        if word in data:
+            print("Word found")
+            print(f"{word} is found at line {line}")
+            line += 1
+            break
         line+=1
