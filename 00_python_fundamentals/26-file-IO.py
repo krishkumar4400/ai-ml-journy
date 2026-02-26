@@ -42,9 +42,30 @@
 # f.write("\n\nNew text being appended to the file")
 # f.close()
 
-f = open('26-sample.txt', 'x')
+# f = open('26-sample.txt', 'x')
 
-f.write("New file created")
+# f.write("New file created")
 
-f.close()
+# f.close()
 
+
+# r+, w+, a+
+# f = open("26-sample.txt", "r+")
+# f = open("26-sample.txt", "a+")
+# f = open("26-sample.txt", "w+")
+
+# f.write("123456")
+# print(f.read())
+
+# f.close()
+
+
+# With keyword
+with open("26-sample.txt", 'r') as f:
+    # print(f.read())
+    # print(f.read())
+    # print(f.readline())
+    data = f.read()
+    print(type(data))
+    print(len(data))
+    print(data)
