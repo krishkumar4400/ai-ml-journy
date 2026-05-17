@@ -1,87 +1,209 @@
-from langchain.agents import create_agent
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from tools import web_search, scrape_url
+import logging
+
 from dotenv import load_dotenv
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+from langchain_ollama import ChatOllama
+
+from langchain.agents import (
+    AgentExecutor,
+    create_react_agent,
+)
+
+
+from tools import web_search, scrape_url
+
+# -----------------------------------
+# Load env
+# -----------------------------------
 
 load_dotenv()
 
-# model setup
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+# -----------------------------------
+# Logging
+# -----------------------------------
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
+# -----------------------------------
+# LLM
+# -----------------------------------
+
+llm = ChatOllama(
+    model="gemma:7b",
+    temperature=0,
+)
+
+# -----------------------------------
+# ReAct Prompt
+# -----------------------------------
+# -----------------------------------
+# ReAct Prompt
+# -----------------------------------
+
+from langchain_core.prompts import PromptTemplate
+
+# -----------------------------------
+# ReAct Prompt
+# -----------------------------------
+
+prompt = PromptTemplate.from_template("""
+Answer the following questions as best you can.
+
+You have access to the following tools:
+
+{tools}
+
+Tool Names:
+{tool_names}
+
+Use the following format:
+
+Question: the input question you must answer
+
+Thought: think about what to do
+
+Action: the action to take, should be one of [{tool_names}]
+
+Action Input: the input to the action
+
+Observation: the result of the action
+
+... (this Thought/Action/Action Input/Observation can repeat)
+
+Thought: I now know the final answer
+
+Final Answer: the final answer to the original question
+
+Question: {input}
+
+Thought: {agent_scratchpad}
+""")
+
+# -----------------------------------
+# Search Agent
+# -----------------------------------
 
 
-# 1st agent
-def build_search_agent():
-    return create_agent(model=llm, tools=[web_search])
+def build_search_agent(verbose=True):
+
+    agent = create_react_agent(
+        llm=llm,
+        tools=[web_search],
+        prompt=prompt,
+    )
+
+    executor = AgentExecutor(
+        agent=agent,
+        tools=[web_search],
+        verbose=verbose,
+    )
+
+    return executor
 
 
-# 2nd agent
+# -----------------------------------
+# Reader Agent
+# -----------------------------------
 
 
-def build_reader_agent():
-    return create_agent(model=llm, tools=[scrape_url])
+def build_reader_agent(verbose=True):
+
+    agent = create_react_agent(
+        llm=llm,
+        tools=[scrape_url],
+        prompt=prompt,
+    )
+
+    executor = AgentExecutor(
+        agent=agent,
+        tools=[scrape_url],
+        verbose=verbose,
+    )
+
+    return executor
 
 
-# writer chain
+# -----------------------------------
+# Writer Chain
+# -----------------------------------
 
 writer_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are an expert research writer. Write clear, structured and insightful reports.",
+            """
+You are an expert research writer.
+
+Write clear, professional,
+well-structured research reports.
+""",
         ),
         (
             "human",
-            """Write a detailed research report on the topic below.
+            """
+Write a detailed research report.
 
-Topic: {topic}
+TOPIC:
+{topic}
 
-Research Gathered:
+RESEARCH:
 {research}
 
-Structure the report as:
-- Introduction
-- Key Findings (minimum 3 well-explained points)
-- Conclusion
-- Sources (list all URLs found in the research)
+Structure:
+1. Introduction
+2. Key Findings
+3. Conclusion
+4. Sources
 
-Be detailed, factual and professional.""",
+Be detailed and factual.
+""",
         ),
     ]
 )
 
 writer_chain = writer_prompt | llm | StrOutputParser()
 
-# critic_chain
+# -----------------------------------
+# Critic Chain
+# -----------------------------------
 
 critic_prompt = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are a sharp and constructive research critic. Be honest and specific.",
+            """
+You are a strict research critic.
+Provide honest feedback.
+""",
         ),
         (
             "human",
-            """Review the research report below and evaluate it strictly.
+            """
+Review this report:
 
-Report:
 {report}
 
-Respond in this exact format:
+Respond in this format:
 
 Score: X/10
 
 Strengths:
 - ...
-- ...
 
 Areas to Improve:
 - ...
-- ...
 
-One line verdict:
-...""",
+Verdict:
+...
+""",
         ),
     ]
 )
