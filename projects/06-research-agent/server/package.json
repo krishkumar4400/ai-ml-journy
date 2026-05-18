@@ -17,9 +17,11 @@
     "@types/node": "^25.8.0",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "@prisma/client": "^6.9.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -29,6 +31,7 @@
     "jsonwebtoken": "^9.0.3",
     "mailgen": "^2.0.34",
     "mongoose": "^9.6.2",
-    "nodemailer": "^8.0.7"
+    "nodemailer": "^8.0.7",
+    "prisma": "^6.9.0"
   }
 }

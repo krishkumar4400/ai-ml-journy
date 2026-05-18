@@ -1,0 +1,122 @@
+version: "3.9"
+
+services:
+
+  # -----------------------------------
+  # Frontend
+  # -----------------------------------
+
+  frontend:
+
+    build:
+      context: ./client
+
+    container_name: frontend
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - ./client:/app
+
+      - /app/node_modules
+
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+
+    depends_on:
+      - backend-core
+
+  # -----------------------------------
+  # Express Backend
+  # -----------------------------------
+
+  backend-core:
+
+    build:
+      context: ./server
+
+    container_name: backend-core
+
+    ports:
+      - "4000:4000"
+
+    volumes:
+      - ./server:/app
+
+      - /app/node_modules
+
+    env_file:
+      - .env
+
+    depends_on:
+      - postgres
+      - redis
+
+  # -----------------------------------
+  # FastAPI AI Engine
+  # -----------------------------------
+
+  backend-ai:
+
+    build:
+      context: ./backend-ai
+
+    container_name: backend-ai
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - ./backend-ai:/app
+
+    env_file:
+      - .env
+
+    depends_on:
+      - postgres
+      - redis
+
+  # -----------------------------------
+  # PostgreSQL + PGVector
+  # -----------------------------------
+
+  postgres:
+
+    image: pgvector/pgvector:pg16
+
+    container_name: postgres
+
+    restart: always
+
+    ports:
+      - "5433:5432"
+
+    environment:
+      POSTGRES_USER: postgres
+
+      POSTGRES_PASSWORD: postgres
+
+      POSTGRES_DB: ai_platform
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # -----------------------------------
+  # Redis
+  # -----------------------------------
+
+  redis:
+
+    image: redis:7-alpine
+
+    container_name: redis
+
+    restart: always
+
+    ports:
+      - "6379:6379"
+
+volumes:
+
+  postgres_data:
