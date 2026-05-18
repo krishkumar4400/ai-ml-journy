@@ -1,4 +1,13 @@
+
+import {
+    useAuth,
+} from "@/context/AuthContext";
+
 export default function Sidebar() {
+    const {
+        user,
+        logout,
+    } = useAuth();
     return (
         <aside
             className="
@@ -58,6 +67,41 @@ export default function Sidebar() {
                 >
                     Multi-Agent Systems
                 </div>
+            </div>
+            <div
+                className="
+        mt-auto
+        pt-4
+        border-t
+        border-zinc-800
+    "
+            >
+
+                <div
+                    className="
+            text-sm
+            text-zinc-400
+            mb-3
+        "
+                >
+                    {user?.email}
+                </div>
+
+                <button
+                    onClick={logout}
+                    className="
+            w-full
+            bg-red-500/10
+            hover:bg-red-500/20
+            text-red-400
+            p-3
+            rounded-xl
+            transition
+        "
+                >
+                    Logout
+                </button>
+
             </div>
         </aside>
     );

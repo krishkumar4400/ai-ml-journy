@@ -23,6 +23,7 @@ from app.api.routes.chat_pdf_stream import (
 from app.api.routes.multi_agent_stream import (
     router as multi_agent_stream_router,
 )
+from app.api.routes.chat import router as chat_router
 
 # -----------------------------------
 # Main API Router
@@ -82,3 +83,5 @@ api_router.include_router(
     prefix="/multi-agent-stream",
     tags=["Multi-Agent Stream"],
 )
+api_router.include_router(chat_router, prefix="/chat", tags=["chat"])
+

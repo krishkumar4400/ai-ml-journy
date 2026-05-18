@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Sidebar from "@/components/layout/Sidebar";
 
 import ChatInput from "@/components/chat/ChatInput";
 
 import ChatWindow from "@/components/chat/ChatWindow";
+import ProtectedRoute
+    from "@/components/auth/ProtectedRoute";
 
 type Message = {
     role: "user" | "assistant";
@@ -14,6 +16,7 @@ type Message = {
 };
 
 export default function ChatPage() {
+
     // -----------------------------------
     // State
     // -----------------------------------
@@ -28,95 +31,153 @@ export default function ChatPage() {
         useState(false);
 
     // -----------------------------------
+    // Token
+    // -----------------------------------
+
+    const [token, setToken] =
+        useState("");
+
+    useEffect(() => {
+
+        const storedToken =
+            localStorage.getItem(
+                "token"
+            );
+
+        if (storedToken) {
+            setToken(storedToken);
+        }
+
+    }, []);
+
+    // -----------------------------------
     // Send Message
     // -----------------------------------
 
     const sendMessage =
         async () => {
+
             if (!input.trim()) return;
-
-            const userMessage = {
-                role: "user" as const,
-                content: input,
-            };
-
-            setMessages((prev) => [
-                ...prev,
-                userMessage,
-            ]);
-
-            setInput("");
 
             setLoading(true);
 
+            // -----------------------------------
+            // Store current input
+            // -----------------------------------
+
+            const userMessage =
+                input;
+
+            // -----------------------------------
+            // Add User Message
+            // -----------------------------------
+
+            setMessages(prev => [
+                ...prev,
+
+                {
+                    role: "user",
+                    content: userMessage,
+                },
+
+                // Assistant placeholder
+                {
+                    role: "assistant",
+                    content: "",
+                },
+            ]);
+
+            // -----------------------------------
+            // Clear input
+            // -----------------------------------
+
+            setInput("");
+
             try {
-                const response = await fetch(
-                    "http://127.0.0.1:8000/stream/",
-                    {
-                        method: "POST",
 
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-                        },
+                const response =
+                    await fetch(
+                        "http://localhost:4000/api/messages",
 
-                        body: JSON.stringify({
-                            topic: input,
-                        }),
-                    }
-                );
+                        {
+                            method: "POST",
 
-                if (!response.body) return;
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                Authorization:
+                                    `Bearer ${token}`,
+                            },
+
+                            body: JSON.stringify({
+                                message: userMessage,
+                            }),
+                        }
+                    );
+
+                // -----------------------------------
+                // Stream Reader
+                // -----------------------------------
 
                 const reader =
-                    response.body.getReader();
+                    response.body?.getReader();
+
+                if (!reader) {
+                    throw new Error(
+                        "No response body"
+                    );
+                }
 
                 const decoder =
                     new TextDecoder();
 
-                let aiMessage = "";
+                let finalText = "";
 
-                setMessages((prev) => [
-                    ...prev,
-                    {
-                        role: "assistant",
-                        content: "",
-                    },
-                ]);
+                // -----------------------------------
+                // Read Stream
+                // -----------------------------------
 
-                let done = false;
+                while (true) {
 
-                while (!done) {
-                    const result =
-                        await reader.read();
+                    const {
+                        done,
+                        value,
+                    } = await reader.read();
 
-                    done = result.done;
+                    if (done) break;
 
                     const chunk =
-                        decoder.decode(
-                            result.value
-                        );
+                        decoder.decode(value);
 
-                    aiMessage += chunk;
+                    finalText += chunk;
 
-                    setMessages((prev) => {
-                        const updated = [
-                            ...prev,
-                        ];
+                    // -----------------------------------
+                    // Update LAST assistant message
+                    // -----------------------------------
+
+                    setMessages(prev => {
+
+                        const updated =
+                            [...prev];
 
                         updated[
                             updated.length - 1
                         ] = {
                             role: "assistant",
-                            content: aiMessage,
+                            content: finalText,
                         };
 
                         return updated;
                     });
                 }
+
             } catch (error) {
+
                 console.error(error);
+
             } finally {
+
                 setLoading(false);
             }
         };
@@ -126,14 +187,16 @@ export default function ChatPage() {
     // -----------------------------------
 
     return (
+        <ProtectedRoute>
         <main
             className="
-        h-screen
-        bg-black
-        text-white
-        flex
-      "
+                h-screen
+                bg-black
+                text-white
+                flex
+            "
         >
+
             {/* Sidebar */}
 
             <Sidebar />
@@ -142,12 +205,13 @@ export default function ChatPage() {
 
             <section
                 className="
-          flex-1
-          flex
-          flex-col
-          p-6
-        "
+                    flex-1
+                    flex
+                    flex-col
+                    p-6
+                "
             >
+
                 {/* Messages */}
 
                 <ChatWindow
@@ -162,7 +226,9 @@ export default function ChatPage() {
                     onSend={sendMessage}
                     loading={loading}
                 />
+
             </section>
         </main>
+        </ProtectedRoute>
     );
 }
