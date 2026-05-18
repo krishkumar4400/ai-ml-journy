@@ -9,6 +9,10 @@ import ChatInput from "@/components/chat/ChatInput";
 import ChatWindow from "@/components/chat/ChatWindow";
 import ProtectedRoute
     from "@/components/auth/ProtectedRoute";
+import {
+    useChat,
+} from "@/context/ChatContext";
+import { apiFetch } from "@/lib/api";
 
 type Message = {
     role: "user" | "assistant";
@@ -21,8 +25,18 @@ export default function ChatPage() {
     // State
     // -----------------------------------
 
-    const [messages, setMessages] =
-        useState<Message[]>([]);
+    const {
+
+        messages,
+        setMessages,
+
+        currentChatId,
+        setCurrentChatId,
+
+        chats,
+        setChats,
+
+    } = useChat();
 
     const [input, setInput] =
         useState("");
@@ -94,7 +108,45 @@ export default function ChatPage() {
             setInput("");
 
             try {
+                let activeChatId =
+                    currentChatId;
+                if (!activeChatId) {
 
+                    const chatResponse =
+                        await apiFetch(
+                            "/api/chats",
+
+                            {
+                                method: "POST",
+
+                                body: JSON.stringify({
+
+                                    chatId:
+                                        activeChatId,
+
+                                    message:
+                                        userMessage,
+                                }),
+                            }
+                        );
+
+                    const chatData =
+                        await chatResponse.json();
+
+                    activeChatId =
+                        chatData.data.id;
+
+                    setCurrentChatId(
+                        activeChatId
+                    );
+
+                    setChats(prev => [
+
+                        chatData.data,
+
+                        ...prev,
+                    ]);
+                }
                 const response =
                     await fetch(
                         "http://localhost:4000/api/messages",

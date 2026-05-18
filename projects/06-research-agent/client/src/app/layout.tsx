@@ -7,6 +7,7 @@ const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 import {
   AuthProvider,
 } from "@/context/AuthContext";
+import { ChatProvider } from "@/context/ChatContext";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,7 +25,13 @@ export default function RootLayout({
     >
       <body>
         <AuthProvider>
-        {children}
+
+          <ChatProvider>
+
+            {children}
+
+          </ChatProvider>
+
         </AuthProvider>
         </body>
     </html>

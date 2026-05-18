@@ -14,6 +14,7 @@ import {
 
 import PublicRoute
     from "@/components/auth/PublicRoute";
+import Link from "next/link";
 
 export default function LoginPage() {
 
@@ -149,8 +150,31 @@ export default function LoginPage() {
                 >
                     Login
                 </button>
+                    {/* Footer */}
 
+                    <p
+                        className="
+                        text-zinc-400
+                        text-sm
+                        text-center
+                    "
+                    >
+
+                        Already have an account?{" "}
+
+                        <Link
+                            href="/signup"
+                            className="
+                            text-blue-400
+                            hover:underline
+                        "
+                        >
+                            signup
+                        </Link>
+
+                    </p>
             </div>
+           
 
         </main>
         </PublicRoute>

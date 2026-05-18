@@ -1,108 +1,177 @@
+"use client";
 
 import {
-    useAuth,
-} from "@/context/AuthContext";
+
+    useEffect,
+
+} from "react";
+
+import {
+
+    useChat,
+
+} from "@/context/ChatContext";
+
+import {
+
+    apiFetch,
+
+} from "@/lib/api";
 
 export default function Sidebar() {
+
     const {
-        user,
-        logout,
-    } = useAuth();
+
+        chats,
+        setChats,
+
+        currentChatId,
+        setCurrentChatId,
+
+        setMessages,
+
+    } = useChat();
+
+    // -----------------------------------
+    // Load Chats
+    // -----------------------------------
+
+    useEffect(() => {
+
+        fetchChats();
+
+    }, []);
+
+    async function fetchChats() {
+
+        const response =
+            await apiFetch(
+                "/api/chats"
+            );
+
+        const data =
+            await response.json();
+
+        if (data.success) {
+
+            setChats(
+                data.data
+            );
+        }
+    }
+
+    // -----------------------------------
+    // Open Chat
+    // -----------------------------------
+
+    async function openChat(
+        chatId: string
+    ) {
+
+        setCurrentChatId(
+            chatId
+        );
+
+        const response =
+            await apiFetch(
+                `/api/chats/${chatId}`
+            );
+
+        const data =
+            await response.json();
+
+        if (data.success) {
+
+            setMessages(
+                data.data.messages
+            );
+        }
+    }
+
     return (
+
         <aside
             className="
-        w-72
-        bg-zinc-950
-        border-r
-        border-zinc-800
-        p-4
-        flex
-        flex-col
-      "
+                w-72
+                border-r
+                border-zinc-800
+                bg-zinc-950
+                p-4
+                flex
+                flex-col
+            "
         >
-            {/* Logo */}
 
-            <h1 className="text-2xl font-bold mb-8">
-                AI Agent
-            </h1>
-
-            {/* New Chat Button */}
+            {/* New Chat */}
 
             <button
                 className="
-          bg-white
-          text-black
-          rounded-xl
-          py-3
-          font-semibold
-          mb-6
-        "
+                    bg-blue-600
+                    hover:bg-blue-700
+                    text-white
+                    p-3
+                    rounded-xl
+                    mb-6
+                "
             >
                 + New Chat
             </button>
 
             {/* Chat List */}
 
-            <div className="space-y-2">
-                <div
-                    className="
-            bg-zinc-900
-            p-3
-            rounded-xl
-            cursor-pointer
-            hover:bg-zinc-800
-          "
-                >
-                    Future of AI
-                </div>
-
-                <div
-                    className="
-            bg-zinc-900
-            p-3
-            rounded-xl
-            cursor-pointer
-            hover:bg-zinc-800
-          "
-                >
-                    Multi-Agent Systems
-                </div>
-            </div>
             <div
                 className="
-        mt-auto
-        pt-4
-        border-t
-        border-zinc-800
-    "
+                    flex-1
+                    overflow-y-auto
+                    space-y-2
+                "
             >
 
-                <div
-                    className="
-            text-sm
-            text-zinc-400
-            mb-3
-        "
-                >
-                    {user?.email}
-                </div>
+                {chats.map(
+                    (chat) => (
 
-                <button
-                    onClick={logout}
-                    className="
-            w-full
-            bg-red-500/10
-            hover:bg-red-500/20
-            text-red-400
-            p-3
-            rounded-xl
-            transition
-        "
-                >
-                    Logout
-                </button>
+                        <button
+                            key={chat.id}
+
+                            onClick={() =>
+                                openChat(
+                                    chat.id
+                                )
+                            }
+
+                            className={`
+                                w-full
+                                text-left
+                                p-3
+                                rounded-xl
+                                transition
+
+                                ${currentChatId ===
+                                    chat.id
+
+                                    ? "bg-zinc-800"
+
+                                    : "hover:bg-zinc-900"
+                                }
+                            `}
+                        >
+
+                            <div
+                                className="
+                                    text-sm
+                                    text-zinc-200
+                                    truncate
+                                "
+                            >
+                                {chat.title}
+                            </div>
+
+                        </button>
+                    )
+                )}
 
             </div>
+
         </aside>
     );
 }
