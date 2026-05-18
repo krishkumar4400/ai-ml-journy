@@ -46,8 +46,10 @@ services:
 
       - /app/node_modules
 
-    env_file:
-      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ai_platform
+
+      JWT_SECRET: mMct8ozIT8FieoHpzQIMXVmvHPBJ0CSaz0kxwqfUpCOoqiyZkFjNiWh7XFQT1
 
     depends_on:
       - postgres

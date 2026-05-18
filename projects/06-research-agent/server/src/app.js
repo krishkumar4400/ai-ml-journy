@@ -3,6 +3,7 @@ import cors from "cors";
 import healthCheckRouter from "./routes/healthCheck.routes.js";
 import userRouter from "./routes/user.routes.js";
 import cookieParser from "cookie-parser";
+import authRoutes from "./auth/auth.routes.js";
 
 const app = express();
 
@@ -28,5 +29,7 @@ app.get("/", (req, res) => {
 // import the routes
 app.use("/api/v1/healthcheck", healthCheckRouter);
 app.use("/api/v1/auth", userRouter);
+
+app.use("/api/auth", authRoutes);
 
 export default app;

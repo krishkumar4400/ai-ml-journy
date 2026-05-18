@@ -10,6 +10,8 @@ import { ApiResponse } from "../utils/api-response.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
+
+
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await userModel.findById(userId);
@@ -384,3 +386,22 @@ export const changeCurrentPassword = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, {}, "Password changed successfully"));
 });
+
+
+//----------------------------------
+/**
+ * Postgress
+ */
+//----------------------------------
+
+export const register = (req,res) => {
+  try {
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false
+    });
+  }
+}
